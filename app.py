@@ -1,14 +1,13 @@
 from threading import Lock
 from flask import Flask, render_template
 from flask_socketio import SocketIO
-import pyaudio
 import numpy as np
 from scipy.io.wavfile import write
 from faster_whisper import WhisperModel
 import torch
 import threading
-import pandas as pd
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from twitchrealtimehandler import TwitchAudioGrabber
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
@@ -33,23 +32,22 @@ def np_softmax(x):
     return f_x
 
 def record_audio():
-    p = pyaudio.PyAudio()
-    default_device_index = p.get_default_input_device_info()['index']
-    stream = p.open(format=pyaudio.paInt16,
-                    channels=2,
-                    rate=44100,
-                    input=True,
-                    input_device_index=default_device_index,
-                    frames_per_buffer=44100)
+    audio_grabber = TwitchAudioGrabber(
+        twitch_url="https://www.twitch.tv/pearbender",
+        blocking=True,
+        segment_length=10,
+        rate=44100,
+        channels=2,
+        dtype=np.int16
+    )
 
     global recorded
     while True:
         print('Recording...')
-        block = stream.read(10 * 44100)
-        audio_data = np.frombuffer(block, dtype=np.int16)
-        audio_data = audio_data.reshape(-1, 2)
-        write('test.wav', 44100, audio_data)
-        recorded += 1
+        audio_data = audio_grabber.grab()
+        if audio_data is not None:
+            write('test.wav', 44100, audio_data)
+            recorded += 1
 
 def transcribe_audio():
     whisper_options = {
