@@ -8,6 +8,7 @@ import pandas as pd
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import matplotlib.pyplot as plt
 import seaborn as sns
+import matplotlib.backends.backend_qt5agg
 
 recorded = 0
 transcribed = 0
