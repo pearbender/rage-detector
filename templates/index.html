@@ -22,7 +22,7 @@
 			// to the client. The data is then displayed in the "Received"
 			// section of the page.
 			socket.on('my_response', function (msg, cb) {
-				$('#log').append('<br>' + $('<div/>').text('Received: ' + msg.labels + ' ' + msg.values).html());
+				$('#log').append('<br>' + $('<div/>').text('Received: ' + msg.text + ' ' + msg.values).html());
 				chart.data.datasets[0].data = msg.values;
 				chart.update();
 				if (cb)
@@ -39,12 +39,7 @@
 </head>
 
 <body>
-	<h1>Flask-SocketIO Test</h1>
-	<p>
-		Async mode is: <b>{{ async_mode }}</b><br>
-		Current transport is: <b><span id="transport"></span></b><br>
-		Average ping/pong latency: <b><span id="ping-pong"></span>ms</b>
-	</p>
+	<h1>Rage Detector</h1>
 	<canvas id="myChart" width="800" height="400"></canvas>
 	<h2>Receive:</h2>
 	<div id="log"></div>
@@ -53,7 +48,7 @@
 		var chart = new Chart(ctx, {
 			type: 'bar',
 			data: {
-				labels: ['A', 'B', 'C', 'D', 'E'],
+				labels: ['喜び', '悲しみ', '期待', '驚き', '怒り', '恐れ', '嫌悪', '信頼'],
 				datasets: [{
 					label: 'Value',
 					data: [0, 0, 0, 0, 0],
@@ -62,14 +57,20 @@
 						'rgba(54, 162, 235, 0.2)',
 						'rgba(255, 206, 86, 0.2)',
 						'rgba(75, 192, 192, 0.2)',
-						'rgba(153, 102, 255, 0.2)'
+						'rgba(153, 102, 255, 0.2)',
+						'rgba(255, 159, 64, 0.2)',  // Orange color
+						'rgba(50, 205, 50, 0.2)',   // Lime green color
+						'rgba(255, 69, 0, 0.2)'     // Crimson color
 					],
 					borderColor: [
 						'rgba(255, 99, 132, 1)',
 						'rgba(54, 162, 235, 1)',
 						'rgba(255, 206, 86, 1)',
 						'rgba(75, 192, 192, 1)',
-						'rgba(153, 102, 255, 1)'
+						'rgba(153, 102, 255, 1)',
+						'rgba(255, 159, 64, 1)',  // Orange color
+						'rgba(50, 205, 50, 1)',   // Lime green color
+						'rgba(255, 69, 0, 1)'     // Crimson color
 					],
 					borderWidth: 1
 				}]
@@ -79,6 +80,11 @@
 					y: {
 						beginAtZero: true
 					}
+				},
+				plugins: {
+					legend: {
+						display: false
+					},
 				}
 			}
 		});
