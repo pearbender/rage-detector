@@ -6,7 +6,7 @@ from scipy.io.wavfile import write
 from faster_whisper import WhisperModel
 import torch
 import threading
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, LukeConfig
 from twitchrealtimehandler import TwitchAudioGrabber
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
@@ -35,7 +35,7 @@ def record_audio():
     audio_grabber = TwitchAudioGrabber(
         twitch_url="https://www.twitch.tv/pearbender",
         blocking=True,
-        segment_length=10,
+        segment_length=7,
         rate=44100,
         channels=2,
         dtype=np.int16
@@ -52,7 +52,7 @@ def record_audio():
 def transcribe_audio():
     whisper_options = {
         'language': 'ja',
-        'initial_prompt': "PearBender welcome, fuck english... ええと こんばんは、Alex welcome, いやねぇ 今日はねぇ あ ところでさ ごめん あの 今日ねぇ 今日ねぇ みんな 今日ねぇ, cha- cha- what is it? cha- chazay? あとなんか変な味がする… 口の中, Pero welcome, Mathew welcome, Ender welcome. I'm playing wa- i don't get it wa- warhammer",
+        'initial_prompt': 'うわああ、こいつマジでうぜぇ。むかつく本当に',
         'beam_size': 3,
         'best_of': 3,
         'temperature': (-2.0, 0.2, 0.4, 0.6, 0.8, 1.0),
@@ -63,13 +63,9 @@ def transcribe_audio():
     whisper_model = WhisperModel(
         'large-v2', device="cuda" if torch.cuda.is_available() else "cpu")
 
-    tokenizer_name = 'cl-tohoku/bert-base-japanese-whole-word-masking'
-    tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
-
-    checkpoint = 'test_trainer/checkpoint-2000'
-    model = AutoModelForSequenceClassification.from_pretrained(
-
-        checkpoint, num_labels=num_labels)
+    tokenizer = AutoTokenizer.from_pretrained("Mizuiro-sakura/luke-japanese-large-sentiment-analysis-wrime")
+    config = LukeConfig.from_pretrained('Mizuiro-sakura/luke-japanese-large-sentiment-analysis-wrime', output_hidden_states=True)
+    model = AutoModelForSequenceClassification.from_pretrained('Mizuiro-sakura/luke-japanese-large-sentiment-analysis-wrime', config=config)
 
     global recorded, transcribed, prob, text
     while True:
@@ -78,10 +74,9 @@ def transcribe_audio():
         print('Transcribing...')
         segments, info = whisper_model.transcribe(
             'test.wav', **whisper_options)
-        transcribed += 1
+        transcribed = recorded
         text = ''.join(segment.text for segment in segments)
         print(text)
-        model.eval()
         tokens = tokenizer(text, truncation=True, return_tensors="pt")
         tokens.to(model.device)
         preds = model(**tokens)

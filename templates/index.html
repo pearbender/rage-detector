@@ -3,15 +3,11 @@
 
 <head>
 	<title>Flask-SocketIO Test</title>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
-		integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
-		crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js"
 		integrity="sha512-aMGMvNYu8Ue4G+fHa359jcPb1u+ytAF+P2SCb+PxrjCdO3n3ZTxJ30zuH39rimUggmTwmh2u7wvQsDTHESnmfQ=="
 		crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
 	<script type="text/javascript" charset="utf-8">
-		$(document).ready(function () {
+		document.addEventListener('DOMContentLoaded', function () {
 			// Connect to the Socket.IO server.
 			// The connection URL has the following format, relative to the current page:
 			//     http[s]://<domain>:<port>[/<namespace>]
@@ -22,73 +18,101 @@
 			// to the client. The data is then displayed in the "Received"
 			// section of the page.
 			socket.on('my_response', function (msg, cb) {
-				$('#log').append('<br>' + $('<div/>').text('Received: ' + msg.text + ' ' + msg.values).html());
-				chart.data.datasets[0].data = msg.values;
-				chart.update();
+				console.log(msg.text, msg.values[4]);
+				const fillPercentage = Math.round(Math.min(100, msg.values[4] * 100));
+				let meter = document.getElementById('meter');
+
+				if (fillPercentage > 50) {
+					meter.style.background = "#f00"
+					meter.style.filter = "drop-shadow(0 0 2.5px #f00) drop-shadow(0 0 10px #f00)"
+				} else {
+					meter.style.background = "#ff0"
+					meter.style.filter = "drop-shadow(0 0 2.5px #ff0) drop-shadow(0 0 10px #ff0)"
+
+				}
+				meter.style.height = fillPercentage + '%';
+				myChart.style.background = `linear-gradient(to top, red ${fillPercentage}%, transparent ${fillPercentage}%)`;
 				if (cb)
 					cb();
 			});
 		});
 	</script>
 	<style>
-		#myChart {
-			max-width: 800px;
-			max-height: 400px;
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			min-height: 100vh;
+			background: #00ff00;
+		}
+
+		.box {
+			position: absolute;
+			width: 100vw;
+			height: 100vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			background: #333;
+			box-shadow: 0 5px 50px rgba(0, 0, 0, 0.5);
+			border-radius: 20px;
+		}
+
+		.spinner {
+			position: relative;
+			width: calc(100vw - 20px);
+			gap: 12px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+			user-select: none;
+		}
+
+		.progress {
+			position: relative;
+			width: 100%;
+			background: #222;
+			height: calc(100vh - 20px);
+			display: flex;
+			flex-direction: column-reverse;
+			border-radius: 20px;
+		}
+
+		.progress #meter {
+			position: absolute;
+			width: 100%;
+			background: #ff0;
+			filter: drop-shadow(0 0 2.5px #ff0) drop-shadow(0 0 10px #ff0);
+			transition: 0.5s;
+			border-radius: 20px;
+		}
+
+		#output {
+			position: relative;
+			color: #fff;
+			font-size: 2em;
+			text-shadow: 0 0 5px #fff;
+			display: none;
 		}
 	</style>
 </head>
 
 <body>
-	<h1>Rage Detector</h1>
-	<canvas id="myChart" width="800" height="400"></canvas>
-	<h2>Receive:</h2>
-	<div id="log"></div>
-	<script type="text/javascript" charset="utf-8">
-		var ctx = document.getElementById('myChart').getContext('2d');
-		var chart = new Chart(ctx, {
-			type: 'bar',
-			data: {
-				labels: ['喜び', '悲しみ', '期待', '驚き', '怒り', '恐れ', '嫌悪', '信頼'],
-				datasets: [{
-					label: 'Value',
-					data: [0, 0, 0, 0, 0],
-					backgroundColor: [
-						'rgba(255, 99, 132, 0.2)',
-						'rgba(54, 162, 235, 0.2)',
-						'rgba(255, 206, 86, 0.2)',
-						'rgba(75, 192, 192, 0.2)',
-						'rgba(153, 102, 255, 0.2)',
-						'rgba(255, 159, 64, 0.2)',  // Orange color
-						'rgba(50, 205, 50, 0.2)',   // Lime green color
-						'rgba(255, 69, 0, 0.2)'     // Crimson color
-					],
-					borderColor: [
-						'rgba(255, 99, 132, 1)',
-						'rgba(54, 162, 235, 1)',
-						'rgba(255, 206, 86, 1)',
-						'rgba(75, 192, 192, 1)',
-						'rgba(153, 102, 255, 1)',
-						'rgba(255, 159, 64, 1)',  // Orange color
-						'rgba(50, 205, 50, 1)',   // Lime green color
-						'rgba(255, 69, 0, 1)'     // Crimson color
-					],
-					borderWidth: 1
-				}]
-			},
-			options: {
-				scales: {
-					y: {
-						beginAtZero: true
-					}
-				},
-				plugins: {
-					legend: {
-						display: false
-					},
-				}
-			}
-		});
-	</script>
+	<div class="box">
+		<div class="spinner">
+			<span id="output"></span>
+			<div class="progress">
+				<span id="meter"></span>
+			</div>
+		</div>
+	</div>
 </body>
 
 </html>
