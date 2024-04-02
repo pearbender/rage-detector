@@ -27,13 +27,15 @@ emotion_names_jp = ['喜び', '悲しみ', '期待', '驚き', '怒り', '恐れ
 num_labels = len(emotion_names_jp)
 prob = np.zeros(len(emotion_names_jp))
 
+
 def np_softmax(x):
     f_x = np.exp(x) / np.sum(np.exp(x))
     return f_x
 
+
 def record_audio():
     audio_grabber = TwitchAudioGrabber(
-        twitch_url="https://www.twitch.tv/pearbender",
+        twitch_url="https://www.twitch.tv/perokichi_neet",
         blocking=True,
         segment_length=7,
         rate=44100,
@@ -49,6 +51,7 @@ def record_audio():
             write('test.wav', 44100, audio_data)
             recorded += 1
 
+
 def transcribe_audio():
     whisper_options = {
         'language': 'ja',
@@ -63,9 +66,12 @@ def transcribe_audio():
     whisper_model = WhisperModel(
         'large-v2', device="cuda" if torch.cuda.is_available() else "cpu")
 
-    tokenizer = AutoTokenizer.from_pretrained("Mizuiro-sakura/luke-japanese-large-sentiment-analysis-wrime")
-    config = LukeConfig.from_pretrained('Mizuiro-sakura/luke-japanese-large-sentiment-analysis-wrime', output_hidden_states=True)
-    model = AutoModelForSequenceClassification.from_pretrained('Mizuiro-sakura/luke-japanese-large-sentiment-analysis-wrime', config=config)
+    tokenizer = AutoTokenizer.from_pretrained(
+        "Mizuiro-sakura/luke-japanese-large-sentiment-analysis-wrime")
+    config = LukeConfig.from_pretrained(
+        'Mizuiro-sakura/luke-japanese-large-sentiment-analysis-wrime', output_hidden_states=True)
+    model = AutoModelForSequenceClassification.from_pretrained(
+        'Mizuiro-sakura/luke-japanese-large-sentiment-analysis-wrime', config=config)
 
     global recorded, transcribed, prob, text
     while True:
@@ -81,6 +87,7 @@ def transcribe_audio():
         tokens.to(model.device)
         preds = model(**tokens)
         prob = np_softmax(preds.logits.cpu().detach().numpy()[0])
+
 
 def background_thread():
     """Example of how to send server generated events to clients."""
