@@ -26,23 +26,18 @@
 				const fillPercentage = Math.round(Math.min(100, msg.values[4] * 100));
 				let oko = document.getElementById('oko');
 				let daipan = document.getElementById('daipan');
+
 				const fill = document.getElementById("fill");
+				fill.style.setProperty('--percent', `${100 - fillPercentage}%`);
 				const fillBlur = document.getElementById("fill-blur");
-				fill.style.height = `calc((${fillPercentage} / 100) * (100vh - 100vw - 10vw - 10vw - 10vh)`;
-				fillBlur.style.height = `calc((${fillPercentage} / 100) * (100vh - 100vw - 10vw - 10vh)`;
+				fillBlur.style.setProperty('--percent', `${100 - fillPercentage}%`);
 
 				if (fillPercentage > 50) {
 					daipan.style.opacity = 1.0;
 					oko.style.opacity = 0.0;
-					color = 'red';
-					fill.style.background = `${color}`;
-					fillBlur.style.background = `${color}`;
 				} else if (fillPercentage > 0) {
 					oko.style.opacity = 1.0;
 					daipan.style.opacity = 0.0;
-					color = 'yellow';
-					fill.style.background = `${color}`;
-					fillBlur.style.background = `${color}`;
 				} else {
 					oko.style.opacity = 0.0;
 					daipan.style.opacity = 0.0;
@@ -54,6 +49,10 @@
 		});
 	</script>
 	<style>
+		:root {
+			--percent: 100%;
+		}
+
 		.common {
 			position: absolute;
 			width: calc(100vw - 10vw);
@@ -69,20 +68,31 @@
 		}
 
 		#fill {
-			height: 0;
 			transition: 0.5s;
-			width: calc(100vw - 10vw - 10vw);
-			left: calc(5vw + 5vw);
-			bottom: calc(100vw + 5vw + 5vw + 5vh);
 			transform: skew(0deg, 20deg);
+			width: calc(100vw - 10vw - 10vw);
+			height: calc(100vh - 100vw - 10vw - 10vh - 10vw);
+			left: 10vw;
+			bottom: calc(100vw + 5vw + 5vh + 5vw);
+			background: linear-gradient(to top, yellow, red);
+			clip-path: inset(var(--percent) 0 0 0);
 		}
 
 		#fill-blur {
-			height: 100vw;
+			filter: blur(12vw);
+		}
+
+		#fill-blur::before {
 			transition: 0.5s;
-			opacity: 0.7;
-			filter: blur(6vw);
 			transform: skew(0deg, 20deg);
+			content: '';
+			position: absolute;
+			width: calc(100vw - 10vw - 10vw);
+			height: calc(100vh - 100vw - 10vw - 10vh - 10vw);
+			left: 5vw;
+			bottom: 5vw;
+			clip-path: inset(var(--percent) 0 0 0);
+			background: linear-gradient(to top, yellow, red);
 		}
 
 		#text {
@@ -90,8 +100,8 @@
 			display: flex;
 			justify-content: end;
 			align-items: center;
-			padding-bottom: 40vw;
-			font-size: calc(100vw - 10vw - 5vw - 40vw);
+			padding-bottom: 30vw;
+			font-size: calc(100vw - 10vw - 5vw - 30vw);
 			font-family: "Reggae One", system-ui;
 			writing-mode: vertical-rl;
 		}
