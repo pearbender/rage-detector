@@ -28,8 +28,8 @@
 				let daipan = document.getElementById('daipan');
 				const fill = document.getElementById("fill");
 				const fillBlur = document.getElementById("fill-blur");
-				fill.style.height = `calc((${fillPercentage} / 100) * (100vh - 100vw - 10vw - 10vw)`;
-				fillBlur.style.height = `calc((${fillPercentage} / 100) * (100vh - 100vw - 10vw)`;
+				fill.style.height = `calc((${fillPercentage} / 100) * (100vh - 100vw - 10vw - 10vw - 10vh)`;
+				fillBlur.style.height = `calc((${fillPercentage} / 100) * (100vh - 100vw - 10vw - 10vh)`;
 
 				if (fillPercentage > 50) {
 					daipan.style.opacity = 1.0;
@@ -57,14 +57,15 @@
 		.common {
 			position: absolute;
 			width: calc(100vw - 10vw);
-			height: calc(100vh - 100vw - 10vw);
-			bottom: calc(100vw + 5vw);
+			height: calc(100vh - 100vw - 10vw - 10vh);
+			bottom: calc(100vw + 5vw + 5vh);
 			left: 5vw;
 		}
 
 		#border {
 			background: #666;
 			border: 5vw solid white;
+			transform: skew(0deg, 20deg);
 		}
 
 		#fill {
@@ -72,7 +73,8 @@
 			transition: 0.5s;
 			width: calc(100vw - 10vw - 10vw);
 			left: calc(5vw + 5vw);
-			bottom: calc(100vw + 5vw + 5vw);
+			bottom: calc(100vw + 5vw + 5vw + 5vh);
+			transform: skew(0deg, 20deg);
 		}
 
 		#fill-blur {
@@ -80,6 +82,7 @@
 			transition: 0.5s;
 			opacity: 0.7;
 			filter: blur(6vw);
+			transform: skew(0deg, 20deg);
 		}
 
 		#text {
@@ -87,8 +90,8 @@
 			display: flex;
 			justify-content: end;
 			align-items: center;
-			padding-bottom: 30vw;
-			font-size: calc(100vw - 10vw - 5vw - 30vw);
+			padding-bottom: 40vw;
+			font-size: calc(100vw - 10vw - 5vw - 40vw);
 			font-family: "Reggae One", system-ui;
 			writing-mode: vertical-rl;
 		}
