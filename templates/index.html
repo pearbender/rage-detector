@@ -22,123 +22,95 @@
 			// section of the page.
 			socket.on('my_response', function (msg, cb) {
 				console.log(msg.text, msg.values[4]);
-				const fillPercentage = Math.round(Math.min(100, msg.values[4] * 100));
 
-				let meter = document.getElementById('meter');
+				const fillPercentage = Math.round(Math.min(100, msg.values[4] * 100));
 				let oko = document.getElementById('oko');
 				let daipan = document.getElementById('daipan');
+				const fill = document.getElementById("fill");
+				const fillBlur = document.getElementById("fill-blur");
+				fill.style.height = `calc((${fillPercentage} / 100) * (100vh - 100vw - 10vw - 10vw)`;
+				fillBlur.style.height = `calc((${fillPercentage} / 100) * (100vh - 100vw - 10vw)`;
 
 				if (fillPercentage > 50) {
-					meter.style.background = "#f00"
-					meter.style.filter = "drop-shadow(0 0 2.5px #f00) drop-shadow(0 0 10px #f00)"
 					daipan.style.opacity = 1.0;
 					oko.style.opacity = 0.0;
+					color = 'red';
+					fill.style.background = `${color}`;
+					fillBlur.style.background = `${color}`;
 				} else if (fillPercentage > 0) {
 					oko.style.opacity = 1.0;
 					daipan.style.opacity = 0.0;
-					meter.style.background = "#ff0"
-					meter.style.filter = "drop-shadow(0 0 2.5px #ff0) drop-shadow(0 0 10px #ff0)"
-
+					color = 'yellow';
+					fill.style.background = `${color}`;
+					fillBlur.style.background = `${color}`;
 				} else {
 					oko.style.opacity = 0.0;
 					daipan.style.opacity = 0.0;
 				}
-				meter.style.height = fillPercentage + '%';
+
 				if (cb)
 					cb();
 			});
 		});
 	</script>
 	<style>
-		* {
-			margin: 0;
-			padding: 0;
-			box-sizing: border-box;
-		}
-
-		body {
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			min-height: 100vh;
-			background: #00ff00;
-		}
-
-		.box {
+		.common {
 			position: absolute;
-			left: 60vw;
-			width: 30vw;
-			height: 100vh;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			background: #333;
-			box-shadow: 0 5px 50px rgba(0, 0, 0, 0.5);
-			border-radius: 9999px;
+			width: calc(100vw - 10vw);
+			height: calc(100vh - 100vw - 10vw);
+			bottom: calc(100vw + 5vw);
+			left: 5vw;
 		}
 
-		.spinner {
-			position: relative;
-			width: calc(30vw - 5vw);
-			gap: 12px;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			flex-direction: column;
-			user-select: none;
+		#border {
+			background: #666;
+			border: 5vw solid white;
 		}
 
-		.progress {
-			position: relative;
-			width: 100%;
-			background: #222;
-			height: calc(100vh - 5vw);
-			display: flex;
-			flex-direction: column-reverse;
-			border-radius: 9999px;
-		}
-
-		.progress #meter {
-			position: absolute;
-			width: 100%;
-			background: #ff0;
-			filter: drop-shadow(0 0 2.5px #ff0) drop-shadow(0 0 10px #ff0);
+		#fill {
+			height: 0;
 			transition: 0.5s;
-			border-radius: 9999px;
+			width: calc(100vw - 10vw - 10vw);
+			left: calc(5vw + 5vw);
+			bottom: calc(100vw + 5vw + 5vw);
 		}
 
-		#output {
-			position: relative;
-			color: #fff;
-			font-size: 2em;
-			text-shadow: 0 0 5px #fff;
-			display: none;
+		#fill-blur {
+			height: 100vw;
+			transition: 0.5s;
+			opacity: 0.7;
+			filter: blur(6vw);
 		}
 
-		.text {
-			position: absolute;
-			align-items: center;
-			justify-content: end;
-			padding-bottom: 1em;
-			display: flex;
-			left: 50vw;
-			bottom: 0;
-			font-size: 15vw;
-			width: 50vw;
-			height: 100vh;
+		#text {
 			color: white;
+			display: flex;
+			justify-content: end;
+			align-items: center;
+			padding-bottom: 30vw;
+			font-size: calc(100vw - 10vw - 5vw - 30vw);
 			font-family: "Reggae One", system-ui;
 			writing-mode: vertical-rl;
 		}
 
+		body {
+			background: #00ff00;
+		}
+
 		img {
 			position: absolute;
-			bottom: 0;
-			left: 0;
-			width: 50vw;
-			height: 50vw;
+			bottom: 5vw;
+			left: 5vw;
+			width: 90vw;
+			height: 90vw;
 			transition: 0.5s;
 			opacity: 0;
+		}
+
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
 		}
 	</style>
 </head>
@@ -146,15 +118,10 @@
 <body>
 	<img id="daipan" src="{{ url_for('static', filename='images/daipan.gif') }}">
 	<img id="oko" src="{{ url_for('static', filename='images/oko.png') }}">
-	<div class="box">
-		<div class="spinner">
-			<span id="output"></span>
-			<div class="progress">
-				<span id="meter"></span>
-			</div>
-		</div>
-	</div>
-	<div class="text" lang="ja">怒りゲージ</div>
+	<div id="border" class="common"></div>
+	<div id="fill" class="common"></div>
+	<div id="fill-blur" class="common"></div>
+	<div id="text" class="common">怒りゲージ</div>
 </body>
 
 </html>
