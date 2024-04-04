@@ -32,6 +32,7 @@ huggingface-hub==0.22.2
 humanfriendly==10.0
 idna==3.6
 ipadic==1.0.0
+iso8601==2.1.0
 isodate==0.6.1
 itsdangerous==2.1.2
 Jinja2==3.1.2
@@ -89,13 +90,11 @@ streamlink==6.7.2
 sympy==1.12
 threadpoolctl==3.4.0
 tokenizers==0.15.2
-torch==2.2.2+cu121
-torchaudio==2.2.2+cu121
-torchvision==0.17.2+cu121
 tqdm==4.66.2
 transformers==4.39.2
 trio==0.25.0
 trio-websocket==0.11.1
+twitchio==2.9.1
 twitchrealtimehandler==0.1.2
 typing_extensions==4.8.0
 tzdata==2024.1
