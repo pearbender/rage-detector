@@ -87,6 +87,7 @@ def transcribe_audio():
         tokens.to(model.device)
         preds = model(**tokens)
         prob = np_softmax(preds.logits.cpu().detach().numpy()[0])
+        print(prob)
 
 
 def background_thread():
