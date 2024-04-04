@@ -53,7 +53,6 @@ sortedcontainers==2.4.0
 streamlink==6.7.2
 sympy==1.12
 tokenizers==0.15.2
-torch==2.2.2
 tqdm==4.66.2
 transformers==4.39.3
 trio==0.25.0
