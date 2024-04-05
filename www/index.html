@@ -99,6 +99,9 @@
     <div id="fill-blur" class="common"></div>
     <div id="text" class="common">怒りゲージ</div>
     <script>
+        const hostname = window.location.hostname;
+        const port = window.location.port ? `:${window.location.port}` : '';
+        const websocketURL = `$wss://${hostname}${port}/ws`;
         const websocket = new WebSocket("wss://localhost:8765/ws");
 
         websocket.onopen = function () {
