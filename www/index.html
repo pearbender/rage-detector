@@ -99,7 +99,7 @@
     <div id="fill-blur" class="common"></div>
     <div id="text" class="common">怒りゲージ</div>
     <script>
-        const websocket = new WebSocket(`wss://${window.location.hostname}:8765/ws`);
+        const websocket = new WebSocket(`ws://${window.location.hostname}:8765/ws`);
 
         websocket.onopen = function () {
             navigator.mediaDevices.getUserMedia({ audio: true })
