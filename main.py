@@ -59,7 +59,8 @@ async def worker_task(websocket, proc, whisper_options, whisper_model, tokenizer
     sample_rate = 48000
     target_sample_rate = 16000
     resample_ratio = target_sample_rate / sample_rate
-    min_chunk_len = 5 * 4 * sample_rate
+    min_chunk_len = 7 * 4 * sample_rate
+    device = "cpu"
 
     while True:
         while len(chunks) < min_chunk_len:
@@ -73,12 +74,17 @@ async def worker_task(websocket, proc, whisper_options, whisper_model, tokenizer
         segments, _ = whisper_model.transcribe(samples, **whisper_options)
         text = ''.join(segment.text for segment in segments)
 
-        tokens = tokenizer(text, truncation=True, return_tensors="pt")
-        tokens.to(model.device)
-        preds = model(**tokens)
-        prob = np_softmax(preds.logits.cpu().detach().numpy()[0])
+        inputs = tokenizer(text, truncation=True,
+                           return_tensors="pt").to(device)
+        model = model.to(device)
+        outputs = model(**inputs)
+        prob = np_softmax(outputs.logits.cpu().detach().numpy()[0])
 
-        print(prob[4], text)
+        rounded_prob = round(prob[4] * 20) / 20
+        num_bars = int(rounded_prob * 20)
+        bars = f"[{'|' * num_bars}{' ' * (20 - num_bars)}]"
+
+        print(f"{bars} {text}")
         await websocket.send(f"{prob[4]}")
 
         chunks = b''
@@ -87,7 +93,6 @@ async def worker_task(websocket, proc, whisper_options, whisper_model, tokenizer
 async def main():
     whisper_options = {
         'language': 'ja',
-        'initial_prompt': 'うわああ、こいつマジでうぜぇ。ムカつく本当に',
         'beam_size': 3,
         'best_of': 3,
         'temperature': (-2.0, 0.2, 0.4, 0.6, 0.8, 1.0),
@@ -99,7 +104,7 @@ async def main():
     print("Loading whisper model...")
 
     whisper_model = WhisperModel(
-        'large-v2', device="cuda" if torch.cuda.is_available() else "cpu")
+        'medium', device="cpu", compute_type="int8")
 
     print("Loading sentiment analysis model...")
 
@@ -110,9 +115,6 @@ async def main():
     model = AutoModelForSequenceClassification.from_pretrained(
         'Mizuiro-sakura/luke-japanese-large-sentiment-analysis-wrime', config=config)
 
-    ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-    ssl_context.load_cert_chain("cert.pem", "cert.key")
-
     print("Starting WebSocket server...")
 
     async with websockets.serve(
@@ -121,7 +123,7 @@ async def main():
                               whisper_model=whisper_model,
                               tokenizer=tokenizer,
                               model=model),
-            "localhost", 8765, ssl=ssl_context):
+            "localhost", 8765):
         await asyncio.Future()
 
 
