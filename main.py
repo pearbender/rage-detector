@@ -106,7 +106,7 @@ async def main():
     print("Loading whisper model...")
 
     whisper_model = WhisperModel(
-        'medium', device="cpu", compute_type="int8")
+        'tiny', device="cpu", compute_type="int8")
 
     print("Loading sentiment analysis model...")
 
