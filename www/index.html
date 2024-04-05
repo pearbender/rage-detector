@@ -100,9 +100,9 @@
     <div id="text" class="common">怒りゲージ</div>
     <script>
         const hostname = window.location.hostname;
-        const port = window.location.port ? `:${window.location.port}` : '';
-        const websocketURL = `$wss://${hostname}${port}/ws`;
-        const websocket = new WebSocket("wss://localhost:8765/ws");
+        const port = ':8765';
+        const websocketURL = `wss://${hostname}${port}/ws`;
+        const websocket = new WebSocket(websocketURL);
 
         websocket.onopen = function () {
             navigator.mediaDevices.getUserMedia({ audio: true })
