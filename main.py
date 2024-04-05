@@ -8,16 +8,43 @@ import numpy as np
 import functools
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, LukeConfig
 
+busy = False
 
-async def hello(websocket, path, proc, whisper_options, whisper_model, tokenizer, model):
+
+async def hello(websocket, path, whisper_options, whisper_model, tokenizer, model):
+    global busy
+
+    if busy:
+        return
+
+    busy = True
+
+    print("Starting ffmpeg process...")
+
+    proc = await asyncio.create_subprocess_shell(
+        'ffmpeg -f webm -i pipe: -f f32le -',
+        stdin=asyncio.subprocess.PIPE,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.DEVNULL
+    )
+
     print("Starting worker task...")
-    asyncio.create_task(worker_task(
+
+    worker = asyncio.create_task(worker_task(
         websocket, proc, whisper_options, whisper_model, tokenizer, model))
 
-    while True:
-        chunk = await websocket.recv()
-        proc.stdin.write(chunk)
-        await proc.stdin.drain()
+    try:
+        async for chunk in websocket:
+            proc.stdin.write(chunk)
+            await proc.stdin.drain()
+    finally:
+        print("Making server available to new connections...")
+
+        worker.cancel()
+        proc.kill()
+        busy = False
+
+        print("Ready for new connections.")
 
 
 def np_softmax(x):
@@ -83,15 +110,6 @@ async def main():
     model = AutoModelForSequenceClassification.from_pretrained(
         'Mizuiro-sakura/luke-japanese-large-sentiment-analysis-wrime', config=config)
 
-    print("Starting ffmpeg process...")
-
-    proc = await asyncio.create_subprocess_shell(
-        'ffmpeg -f webm -i pipe: -f f32le -',
-        stdin=asyncio.subprocess.PIPE,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.DEVNULL
-    )
-
     ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     ssl_context.load_cert_chain("cert.pem", "cert.key")
 
@@ -99,7 +117,6 @@ async def main():
 
     async with websockets.serve(
             functools.partial(hello,
-                              proc=proc,
                               whisper_options=whisper_options,
                               whisper_model=whisper_model,
                               tokenizer=tokenizer,
