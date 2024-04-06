@@ -8,6 +8,7 @@ import numpy as np
 import functools
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, LukeConfig
 import ssl
+import time
 
 
 busy = False
@@ -69,6 +70,8 @@ async def worker_task(websocket, proc, whisper_options, whisper_model, tokenizer
             chunk = await proc.stdout.read(min_chunk_len - len(chunks))
             chunks += chunk
 
+        start_time = time.time()
+
         samples = np.frombuffer(chunks, dtype=np.float32)
         samples = resample(samples, int(len(samples) * resample_ratio))
         samples = samples.astype(np.float32)
@@ -86,7 +89,10 @@ async def worker_task(websocket, proc, whisper_options, whisper_model, tokenizer
         num_bars = int(rounded_prob * 20)
         bars = f"[{'|' * num_bars}{' ' * (20 - num_bars)}]"
 
-        print(f"{bars} {text}")
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+
+        print(f"{elapsed_time:.1f} {bars} {text}")
         await websocket.send(f"{prob[4]}")
 
         chunks = b''
