@@ -18,7 +18,6 @@
   },
   "homepage": "https://github.com/pearbender/rage-detector#readme",
   "devDependencies": {
-    "electron": "^29.2.0",
-    "electron-builder": "^24.13.3"
+    "electron": "^29.2.0"
   }
 }
