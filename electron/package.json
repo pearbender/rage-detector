@@ -18,8 +18,13 @@
   "build": {
     "appId": "rage.detector",
     "win": {
-      "target": ["portable"],
+      "target": [
+        "portable"
+      ],
       "icon": "oko.ico"
     }
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
   }
 }
