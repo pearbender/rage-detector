@@ -62,7 +62,8 @@ async def worker_task(websocket, proc, whisper_options, whisper_model, tokenizer
     sample_rate = 48000
     target_sample_rate = 16000
     resample_ratio = target_sample_rate / sample_rate
-    min_chunk_len = 7 * 4 * sample_rate
+    seconds = 7
+    min_chunk_len = seconds * 4 * sample_rate
     device = "cpu"
 
     while True:
@@ -91,8 +92,9 @@ async def worker_task(websocket, proc, whisper_options, whisper_model, tokenizer
 
         end_time = time.time()
         elapsed_time = end_time - start_time
+        realtime_ratio = elapsed_time / seconds
 
-        print(f"{elapsed_time:.1f} {bars} {text}")
+        print(f"{realtime_ratio:.1f} {bars} {text}")
         await websocket.send(f"{prob[4]}")
 
         chunks = b''
@@ -101,9 +103,9 @@ async def worker_task(websocket, proc, whisper_options, whisper_model, tokenizer
 async def main():
     whisper_options = {
         'language': 'ja',
-        'beam_size': 3,
-        'best_of': 3,
-        'temperature': (-2.0, 0.2, 0.4, 0.6, 0.8, 1.0),
+        'beam_size': 1,
+        'best_of': 1,
+        'temperature': 0,
         'suppress_tokens': [],
         'vad_filter': True,
         'vad_parameters': dict(min_silence_duration_ms=800)
@@ -112,7 +114,7 @@ async def main():
     print("Loading whisper model...")
 
     whisper_model = WhisperModel(
-        'tiny', device="cpu", compute_type="int8")
+        'base', device="cpu", compute_type="int8")
 
     print("Loading sentiment analysis model...")
 
