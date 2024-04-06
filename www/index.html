@@ -58,7 +58,6 @@
         }
 
         #gauge {
-            transition: 0.5s;
             background: #666;
             border: calc(var(--width) * 0.05) solid white;
             width: 100%;
@@ -68,6 +67,7 @@
         }
 
         #gauge-fill {
+            transition: 0.5s;
             clip-path: inset(var(--percent) 0 0 0);
             background: linear-gradient(to top, yellow, red);
             width: 100%;
@@ -83,6 +83,7 @@
         }
 
         #gauge-fill-blur::before {
+            transition: 0.5s;
             display: block;
             content: '';
             width: 100%;
