@@ -87,6 +87,7 @@ async def worker_task(websocket, proc, whisper_options, whisper_model, tokenizer
         prob = np_softmax(outputs.logits.cpu().detach().numpy()[0])
 
         rounded_prob = round(prob[4] * 20) / 20
+        percent = int(round(prob[4] * 100))
         num_bars = int(rounded_prob * 20)
         bars = f"[{'|' * num_bars}{' ' * (20 - num_bars)}]"
 
@@ -94,7 +95,7 @@ async def worker_task(websocket, proc, whisper_options, whisper_model, tokenizer
         elapsed_time = end_time - start_time
         realtime_ratio = elapsed_time / seconds
 
-        print(f"{realtime_ratio:.1f} {bars} {text}")
+        print(f"{realtime_ratio:.1f} {percent: >3}% {bars} {text}")
         await websocket.send(f"{prob[4]}")
 
         chunks = b''
