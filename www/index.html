@@ -8,79 +8,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Reggae+One&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --percent: 100%;
-        }
-
-        .common {
-            position: absolute;
-            width: calc(100vw - 10vw);
-            height: calc(100vh - 100vw - 10vw - 10vh);
-            bottom: calc(100vw + 5vw + 5vh);
-            left: 5vw;
-        }
-
-        #border {
-            background: #666;
-            border: 5vw solid white;
-            transform: skew(0deg, 20deg);
-        }
-
-        #fill {
-            transition: 0.5s;
-            transform: skew(0deg, 20deg);
-            width: calc(100vw - 10vw - 10vw);
-            height: calc(100vh - 100vw - 10vw - 10vh - 10vw);
-            left: 10vw;
-            bottom: calc(100vw + 5vw + 5vh + 5vw);
-            background: linear-gradient(to top, yellow, red);
-            clip-path: inset(var(--percent) 0 0 0);
-        }
-
-        #fill-blur {
-            filter: blur(12vw);
-        }
-
-        #fill-blur::before {
-            transition: 0.5s;
-            transform: skew(0deg, 20deg);
-            content: '';
-            position: absolute;
-            width: calc(100vw - 10vw - 10vw);
-            height: calc(100vh - 100vw - 10vw - 10vh - 10vw);
-            left: 5vw;
-            bottom: 5vw;
-            clip-path: inset(var(--percent) 0 0 0);
-            background: linear-gradient(to top, yellow, red);
-            filter: brightness(1.5);
-            opacity: 0.7;
-        }
-
-        #text {
-            color: white;
-            display: flex;
-            justify-content: end;
-            align-items: center;
-            padding-bottom: 30vw;
-            font-size: calc(100vw - 10vw - 5vw - 30vw);
-            font-family: "Reggae One", system-ui;
-            writing-mode: vertical-rl;
-        }
-
         body {
             background: black;
             color: white;
-            font-size: 80px;
+            display: flex;
+            justify-content: center;
         }
 
-        img {
-            position: absolute;
-            bottom: 5vw;
-            left: 5vw;
-            width: 90vw;
-            height: 90vw;
-            transition: 0.5s;
-            opacity: 0;
+        :root {
+            --percent: 100%;
+            --width: 10vw;
+            --height: 100vh;
         }
 
         * {
@@ -88,16 +26,102 @@
             padding: 0;
             box-sizing: border-box;
         }
+
+        #container {
+            position: relative;
+            width: var(--width);
+            height: var(--height);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: calc(var(--width) * 0.1);
+
+        }
+
+        #image-container {
+            display: inline-block;
+            position: relative;
+        }
+
+        #image-container img {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            opacity: 0;
+            transition: 0.5s;
+        }
+
+        #gauge-container {
+            position: relative;
+            width: 100%;
+            height: calc(var(--height) - var(--width) * 1.5);
+        }
+
+        #gauge {
+            transition: 0.5s;
+            background: #666;
+            border: calc(var(--width) * 0.05) solid white;
+            width: 100%;
+            height: 100%;
+            transform: skew(0deg, 20deg);
+            transform-origin: top left;
+        }
+
+        #gauge-fill {
+            clip-path: inset(var(--percent) 0 0 0);
+            background: linear-gradient(to top, yellow, red);
+            width: 100%;
+            height: 100%
+        }
+
+        #gauge-fill-blur {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            filter: blur(calc(var(--width) * 0.1));
+        }
+
+        #gauge-fill-blur::before {
+            display: block;
+            content: '';
+            width: 100%;
+            height: 100%;
+            clip-path: inset(var(--percent) 0 0 0);
+            background: linear-gradient(to top, yellow, red);
+            filter: brightness(1.5);
+            opacity: 0.7;
+        }
+
+
+        #gauge-text {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%, 0);
+            top: calc(var(--width) * 0.4);
+            color: white;
+            font-size: calc(var(--width) * 0.3);
+            font-family: "Reggae One", system-ui;
+            writing-mode: vertical-rl;
+        }
     </style>
 </head>
 
 <body>
-    <img id="daipan" src="daipan.gif">
-    <img id="oko" src="oko.png">
-    <div id="border" class="common"></div>
-    <div id="fill" class="common"></div>
-    <div id="fill-blur" class="common"></div>
-    <div id="text" class="common">怒りゲージ</div>
+    <div id="container">
+        <div id="gauge-container">
+            <div id="gauge">
+                <div id="gauge-fill"></div>
+                <div id="gauge-fill-blur"></div>
+            </div>
+            <div id="gauge-text">怒りゲージ</div>
+        </div>
+        <div id="image-container">
+            <img id="daipan" src="daipan.gif">
+            <img id="oko" src="oko.png">
+        </div>
+    </div>
     <script>
         const websocket = new WebSocket(`wss://${window.location.hostname}:8765/ws`);
 
@@ -118,13 +142,10 @@
 
         websocket.onmessage = function (event) {
             const fillPercentage = Math.round(Math.min(100, Number(event.data) * 100));
-            let oko = document.getElementById('oko');
-            let daipan = document.getElementById('daipan');
+            document.documentElement.style.setProperty('--percent', `${100 - fillPercentage}%`);
 
-            const fill = document.getElementById("fill");
-            fill.style.setProperty('--percent', `${100 - fillPercentage}%`);
-            const fillBlur = document.getElementById("fill-blur");
-            fillBlur.style.setProperty('--percent', `${100 - fillPercentage}%`);
+            let daipan = document.getElementById('daipan');
+            let oko = document.getElementById('oko');
 
             if (fillPercentage > 50) {
                 daipan.style.opacity = 1.0;
