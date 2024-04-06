@@ -9,10 +9,10 @@ function createWindow () {
     width: 800,
     height: 600,
     frame: false,
-    transparent: true,
+    transparent: true
   })
 
-  const url = process.env.URL;
+  const url = process.env.RAGE_DETECTOR_URL;
 
   win.loadURL(url)
 }
@@ -29,7 +29,7 @@ app.on('window-all-closed', () => {
 
 app.on('login', (event, webContents, request, authInfo, callback) => {
   event.preventDefault();
-  const username = process.env.USERNAME;
-  const password = process.env.PASSWORD;
+  const username = process.env.RAGE_DETECTOR_USERNAME;
+  const password = process.env.RAGE_DETECTOR_PASSWORD;
   callback(username, password);
 });
