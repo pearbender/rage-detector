@@ -7,9 +7,19 @@
   "author": "pearbender <pearbender@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^29.2.0"
+    "electron": "^29.2.0",
+    "electron-builder": "^24.13.3"
   },
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "rage.detector",
+    "win": {
+      "target": ["portable"],
+      "icon": "oko.ico"
+    }
   }
 }
