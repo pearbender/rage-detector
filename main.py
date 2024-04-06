@@ -63,13 +63,19 @@ async def worker_task(websocket, proc, whisper_options, whisper_model, tokenizer
     target_sample_rate = 16000
     resample_ratio = target_sample_rate / sample_rate
     seconds = 7
-    min_chunk_len = seconds * 4 * sample_rate
+    read_chunk_len = int((seconds / 2) * 4 * sample_rate)
+    process_chunk_len = read_chunk_len * 2
     device = "cpu"
 
     while True:
-        while len(chunks) < min_chunk_len:
-            chunk = await proc.stdout.read(min_chunk_len - len(chunks))
+        read = 0
+        while read < read_chunk_len:
+            chunk = await proc.stdout.read(read_chunk_len - read)
             chunks += chunk
+            read += len(chunk)
+
+        if len(chunks) < process_chunk_len:
+            continue
 
         start_time = time.time()
 
@@ -93,12 +99,12 @@ async def worker_task(websocket, proc, whisper_options, whisper_model, tokenizer
 
         end_time = time.time()
         elapsed_time = end_time - start_time
-        realtime_ratio = elapsed_time / seconds
+        realtime_ratio = elapsed_time / (seconds / 2)
 
         print(f"{realtime_ratio:.1f} {percent: >3}% {bars} {text}")
         await websocket.send(f"{prob[4]}")
 
-        chunks = b''
+        chunks = chunks[read_chunk_len:]
 
 
 async def main():
