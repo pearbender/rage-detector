@@ -2,7 +2,7 @@ const { app, BrowserWindow } = require('electron/main')
 const path = require('node:path')
 const dotenv = require('dotenv');
 
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 function createWindow () {
   const win = new BrowserWindow({
