@@ -123,7 +123,7 @@
         </div>
     </div>
     <script>
-        const websocket = new WebSocket(`wss://${window.location.hostname}:8765/ws`);
+        const websocket = new WebSocket(`wss://${window.location.hostname}/ws`);
 
         websocket.onopen = function () {
             navigator.mediaDevices.getUserMedia({ audio: true })
