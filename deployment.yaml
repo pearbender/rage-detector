@@ -52,6 +52,25 @@ spec:
   selector:
     app: rage-gauge
 ---
+apiVersion: v1
+data:
+  auth: cGVybzokYXByMSROTElBV0RIdSRabWdXZjJhd0JQTXI1LkZnOEdHd0cvCg==
+kind: Secret
+metadata:
+  name: rage-gauge-auth
+  namespace: python-garbage
+type: Opaque
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: rage-gauge-auth-middleware
+  namespace: python-garbage
+spec:
+  basicAuth:
+    removeHeader: true
+    secret: rage-gauge-auth
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -60,7 +79,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: traefik
     cert-manager.io/cluster-issuer: letsencrypt
-    traefik.ingress.kubernetes.io/router.middlewares: default-redirect-https@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: python-garbage-rage-gauge-auth-middleware@kubernetescrd,default-redirect-https@kubernetescrd
 spec:
   rules:
     - host: rage-gauge.fndk.io
