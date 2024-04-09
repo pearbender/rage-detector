@@ -11,7 +11,7 @@
         body {
             display: flex;
             justify-content: center;
-            -webkit-app-region: drag;
+            background: black;
         }
 
         :root {
@@ -129,17 +129,17 @@
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(function (stream) {
                     const mediaRecorder = new MediaRecorder(stream);
-                    
+
                     mediaRecorder.ondataavailable = function (e) {
                         if (e.data.size > 0) {
                             websocket.send(e.data)
                         }
                     };
-                    
+
                     mediaRecorder.start(1000)
                 });
-            };
-            
+        };
+
         let target = 0;
 
         websocket.onmessage = function (event) {
@@ -179,7 +179,7 @@
 
             const clampedPosition = Math.min(Math.max(position, 0), 100);
             document.documentElement.style.setProperty('--percent', `${100 - clampedPosition}%`);
-            
+
             let daipan = document.getElementById('daipan');
             let oko = document.getElementById('oko');
 
