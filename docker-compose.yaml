@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  ingress:
+    image: nginx:stable-alpine
+    container_name: ingress
+    networks:
+      - gateway
+    ports:
+      - '80:80'
+      - '443:443'
+    restart: unless-stopped
+    volumes:
+      - ./local/ssl:/etc/nginx/ssl
+      - ./local/nginx.conf:/etc/nginx/nginx.conf
+  front:
+    build: rage-gauge/www
+    networks:
+      - gateway
+    expose:
+      - "80"
+  back:
+    build: rage-gauge
+    networks:
+      - gateway
+    expose:
+      - "8765"
+
+networks:
+  gateway: {}
