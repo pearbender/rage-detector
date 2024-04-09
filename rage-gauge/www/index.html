@@ -155,10 +155,12 @@
 
         const force = 2;
 
+        let updated = false;
+
         let position = 0;
         let speed = 0;
         let acceleration = 0;
-        let gravity = -5;
+        let gravity = -2;
 
         window.setInterval(() => {
             acceleration = position < target ? (target - position) * force : gravity;
@@ -167,6 +169,11 @@
 
             if (position < 0) {
                 position = 0;
+                speed = 0;
+            }
+
+            if (position > 100) {
+                position = 100;
                 speed = 0;
             }
 
@@ -179,7 +186,7 @@
             if (clampedPosition > 50) {
                 daipan.style.opacity = 1.0;
                 oko.style.opacity = 0.0;
-            } else if (clampedPosition > 0) {
+            } else if (clampedPosition > 0.1) {
                 oko.style.opacity = 1.0;
                 daipan.style.opacity = 0.0;
             } else {
