@@ -129,39 +129,65 @@
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(function (stream) {
                     const mediaRecorder = new MediaRecorder(stream);
-
+                    
                     mediaRecorder.ondataavailable = function (e) {
                         if (e.data.size > 0) {
                             websocket.send(e.data)
                         }
                     };
-
+                    
                     mediaRecorder.start(1000)
                 });
-        };
+            };
+            
+        let target = 0;
 
         websocket.onmessage = function (event) {
             const fillPercentage = Math.round(Math.min(100, Number(event.data) * 100));
-            document.documentElement.style.setProperty('--percent', `${100 - fillPercentage}%`);
+            target = fillPercentage;
+        };
 
+        websocket.onclose = function (event) {
+            document.body.innerText = "The server is busy."
+        };
+
+        let dt = 0.03;
+
+        const force = 2;
+
+        let position = 0;
+        let speed = 0;
+        let acceleration = 0;
+        let gravity = -5;
+
+        window.setInterval(() => {
+            acceleration = position < target ? (target - position) * force : gravity;
+            speed += acceleration * dt;
+            position += speed * dt;
+
+            if (position < 0) {
+                position = 0;
+                speed = 0;
+            }
+
+            const clampedPosition = Math.min(Math.max(position, 0), 100);
+            document.documentElement.style.setProperty('--percent', `${100 - clampedPosition}%`);
+            
             let daipan = document.getElementById('daipan');
             let oko = document.getElementById('oko');
 
-            if (fillPercentage > 50) {
+            if (clampedPosition > 50) {
                 daipan.style.opacity = 1.0;
                 oko.style.opacity = 0.0;
-            } else if (fillPercentage > 0) {
+            } else if (clampedPosition > 0) {
                 oko.style.opacity = 1.0;
                 daipan.style.opacity = 0.0;
             } else {
                 oko.style.opacity = 0.0;
                 daipan.style.opacity = 0.0;
             }
-        };
 
-        websocket.onclose = function (event) {
-            document.body.innerText = "The server is busy."
-        };
+        }, dt * 1000)
 
     </script>
 </body>
