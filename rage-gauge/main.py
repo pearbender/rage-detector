@@ -1,13 +1,10 @@
 import asyncio
-import ssl
 import websockets
 from faster_whisper import WhisperModel
-import torch
 from scipy.signal import resample
 import numpy as np
 import functools
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, LukeConfig
-import ssl
 import time
 
 
@@ -134,16 +131,13 @@ async def main():
 
     print("Starting WebSocket server...")
 
-    ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-    ssl_context.load_cert_chain("cert.pem", "cert.key")
-
     async with websockets.serve(
             functools.partial(hello,
                               whisper_options=whisper_options,
                               whisper_model=whisper_model,
                               tokenizer=tokenizer,
                               model=model),
-            "0.0.0.0", 8765, ssl=ssl_context):
+            "0.0.0.0", 8765):
         await asyncio.Future()
 
 
