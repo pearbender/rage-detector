@@ -42,8 +42,7 @@ def main():
         'Mizuiro-sakura/luke-japanese-large-sentiment-analysis-wrime', config=config)
 
     temp_file = 'temp.wav'
-    base_name = os.path.basename(file_path)
-    base_name_without_extension = os.path.splitext(base_name)[0]
+    json_file_path = os.path.splitext(file_path)[0] + ".json"
     audio = AudioSegment.from_mp3(file_path)
     audio = audio.set_channels(1)
     chunk_length = 7000
@@ -80,7 +79,7 @@ def main():
     if os.path.exists(temp_file):
         os.remove(temp_file)
 
-    with open(f"{base_name_without_extension}.json", "w") as json_file:
+    with open(json_file_path, "w") as json_file:
         json.dump(data, json_file, indent=4)
 
 
