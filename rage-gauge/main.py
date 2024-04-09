@@ -52,7 +52,7 @@ def np_softmax(x):
     return f_x
 
 
-overlap_coefficient = 1
+overlap_coefficient = 2
 
 async def worker_task(websocket, proc, whisper_options, whisper_model, tokenizer, model):
     print("Worker task started.")
@@ -61,7 +61,7 @@ async def worker_task(websocket, proc, whisper_options, whisper_model, tokenizer
     sample_rate = 48000
     target_sample_rate = 16000
     resample_ratio = target_sample_rate / sample_rate
-    seconds = 7
+    seconds = 5
     read_chunk_len = int((seconds / overlap_coefficient) * 4 * sample_rate)
     process_chunk_len = read_chunk_len * overlap_coefficient
     device = "cpu"
@@ -109,7 +109,7 @@ async def worker_task(websocket, proc, whisper_options, whisper_model, tokenizer
 async def main():
     whisper_options = {
         'language': 'ja',
-        'beam_size': 1,
+        'beam_size': 5,
         'best_of': 1,
         'temperature': 0,
         'suppress_tokens': [],
@@ -120,7 +120,7 @@ async def main():
     print("Loading whisper model...")
 
     whisper_model = WhisperModel(
-        'small', device="cpu", cpu_threads=16, compute_type="int8")
+        'base', device="cpu", cpu_threads=16, compute_type="int8")
 
     print("Loading sentiment analysis model...")
 
