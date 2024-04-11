@@ -120,7 +120,7 @@ async def main():
     print("Loading whisper model...")
 
     whisper_model = WhisperModel(
-        'base', device="cpu", cpu_threads=16, compute_type="int8")
+        'base', device="cpu", cpu_threads=8, compute_type="int8")
 
     print("Loading sentiment analysis model...")
 

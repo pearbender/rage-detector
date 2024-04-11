@@ -124,20 +124,115 @@
         </div>
     </div>
     <script>
+        function calculateRMS(samples) {
+            let rms = 0;
+            const squares = samples.map(sample => sample * sample);
+            const mean = squares.reduce((a, b) => a + b, 0) / squares.length;
+            rms = Math.sqrt(mean);
+            return rms;
+        }
+
+        function getLoudness(rms) {
+            return 20 * Math.log10(rms);
+        }
+
+        class HeatSim {
+            current = 0;
+            energy = 0;
+            loudness_cutoff = -20;
+            loudness_coeff = 2;
+            energyInCoeff = 2;
+            heatingCoeff = 5;
+            coolingCoeff = 1;
+            
+            simulate(dt, input, volume) {
+                let volumeEnergyIn = 0;
+                if (volume > this.loudness_cutoff) {
+                    volumeEnergyIn = (volume - this.loudness_cutoff) * (volume - this.loudness_cutoff) * dt * this.loudness_coeff;
+                }
+
+                const energyIn = input * dt * this.energyInCoeff;
+                this.energy += energyIn + volumeEnergyIn;
+
+                //console.log(`${energyIn} volumein: ${volumeEnergyIn}, volume ${volume}`);
+                const energyTransferred = this.energy * dt * this.heatingCoeff;
+                
+                if (this.current < 100) {
+                    this.current += energyTransferred;
+                    this.energy -= energyTransferred;
+                }
+
+                const energyOut = this.current * dt * this.coolingCoeff;
+
+                this.current -= energyOut;
+                if (this.current < 0) {
+                    this.current = 0;
+                }
+
+                return this.current;
+            }
+        }
+
+        class GravitySim {
+            position = 0;
+            speed = 0;
+            acceleration = 0;
+            gravity = -2;
+
+            force = 2;
+            
+            simulate(dt, input, volume) {
+                this.acceleration = this.position < input ? (input - this.position) * this.force + this.gravity : this.gravity;
+                this.speed += this.acceleration * dt;
+                this.position += this.speed * dt;
+
+                if (this.position < 0) {
+                    this.position = 0;
+                    this.speed = 0;
+                }
+
+                if (this.position > 100) {
+                    this.position = 100;
+                    this.speed = 0;
+                }
+            }
+        }
+
+        let rms = 0;
+
         const websocket = new WebSocket(`wss://${window.location.hostname}/ws`);
+        const audioContext = new AudioContext();
 
         websocket.onopen = function () {
             navigator.mediaDevices.getUserMedia({ audio: true })
-                .then(function (stream) {
-                    const mediaRecorder = new MediaRecorder(stream);
+                .then(async function (stream) {
+                    // Duplicate the stream for RMS calculation
+                    const streamClone = stream.clone();
+                    // Create a MediaStreamSource from the cloned stream
+                    const source = audioContext.createMediaStreamSource(streamClone);
+                    if (audioContext.state !== 'running') {
+                        await audioContext.resume();
+                    }
 
+                    // Use a ScriptProcessorNode for real-time audio processing
+                    const processor = audioContext.createScriptProcessor(4096, 1, 1);
+                    source.connect(processor);
+                    processor.connect(audioContext.destination); // This line is necessary even if we don't output audio to speakers
+
+                    processor.onaudioprocess = function (audioProcessingEvent) {
+                        const inputBuffer = audioProcessingEvent.inputBuffer;
+                        const inputData = inputBuffer.getChannelData(0); // Assuming mono audio
+                        rms = calculateRMS(inputData);
+                    };
+
+                    const mediaRecorder = new MediaRecorder(stream);
                     mediaRecorder.ondataavailable = function (e) {
                         if (e.data.size > 0) {
-                            websocket.send(e.data)
+                            websocket.send(e.data);
                         }
                     };
 
-                    mediaRecorder.start(1000)
+                    mediaRecorder.start(1000); // Start recording
                 });
         };
 
@@ -152,42 +247,27 @@
             document.body.innerText = "The server is busy."
         };
 
-        let dt = 0.03;
+        const dt = 0.03;
 
-        const force = 2;
-
-        let updated = false;
-
-        let position = 0;
-        let speed = 0;
-        let acceleration = 0;
-        let gravity = -2;
+        const sim = new HeatSim();
 
         window.setInterval(() => {
-            acceleration = position < target ? (target - position) * force : gravity;
-            speed += acceleration * dt;
-            position += speed * dt;
+            const loudness = getLoudness(rms);
 
-            if (position < 0) {
-                position = 0;
-                speed = 0;
-            }
+            //console.log(loudness);
 
-            if (position > 100) {
-                position = 100;
-                speed = 0;
-            }
+            const position = sim.simulate(dt, target, loudness);
 
             const clampedPosition = Math.min(Math.max(position, 0), 100);
             document.documentElement.style.setProperty('--percent', `${100 - clampedPosition}%`);
 
-            let daipan = document.getElementById('daipan');
-            let oko = document.getElementById('oko');
+            const daipan = document.getElementById('daipan');
+            const oko = document.getElementById('oko');
 
             if (clampedPosition > 50) {
                 daipan.style.opacity = 1.0;
                 oko.style.opacity = 0.0;
-            } else if (clampedPosition > 0.1) {
+            } else if (clampedPosition > 20) {
                 oko.style.opacity = 1.0;
                 daipan.style.opacity = 0.0;
             } else {
