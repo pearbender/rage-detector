@@ -1,7 +1,4 @@
-env
-cert.key
-cert.pem
-node_modules
-dist
-.env
 data
+__pycache__
+env
+temp.wav

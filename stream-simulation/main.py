@@ -71,7 +71,7 @@ def main():
         angry_prob = prob[4]
         data.append({
             "t": chunk_start,
-            "p": angry_prob
+            "p": str(angry_prob)
         })
         percentage = (chunk_start / len(audio)) * 100
         print(f"{percentage:.0f}% ({chunk_start}/{len(audio)}) {angry_prob}", end="\r")
