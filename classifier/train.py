@@ -275,7 +275,8 @@ val_dl = torch.utils.data.DataLoader(
 
 # Create the model and put it on the GPU if available
 myModel = AudioClassifier()
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = "cpu"
+# torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 myModel = myModel.to(device)
 # Check that it is on Cuda
 next(myModel.parameters()).device

@@ -144,7 +144,7 @@
             energyInCoeff = 2;
             heatingCoeff = 5;
             coolingCoeff = 1;
-            
+
             simulate(dt, input, volume) {
                 let volumeEnergyIn = 0;
                 if (volume > this.loudness_cutoff) {
@@ -156,7 +156,7 @@
 
                 //console.log(`${energyIn} volumein: ${volumeEnergyIn}, volume ${volume}`);
                 const energyTransferred = this.energy * dt * this.heatingCoeff;
-                
+
                 if (this.current < 100) {
                     this.current += energyTransferred;
                     this.energy -= energyTransferred;
@@ -180,7 +180,7 @@
             gravity = -2;
 
             force = 2;
-            
+
             simulate(dt, input, volume) {
                 this.acceleration = this.position < input ? (input - this.position) * this.force + this.gravity : this.gravity;
                 this.speed += this.acceleration * dt;
@@ -239,7 +239,9 @@
         let target = 0;
 
         websocket.onmessage = function (event) {
-            const fillPercentage = Math.round(Math.min(100, Number(event.data) * 100));
+            const data = JSON.parse(event.data);
+            console.log(data);
+            const fillPercentage = Math.round(Math.min(100, Number(data.p) * 100));
             target = fillPercentage;
         };
 
