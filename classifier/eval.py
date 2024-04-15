@@ -41,11 +41,11 @@ def is_angry(audio_file):
     return angry == 0
 
 
-angry_folder_path = "./data/angry-test"
+angry_folder_path = "./data/angry"
 angry_files = [os.path.join(angry_folder_path, file) for file in os.listdir(
     angry_folder_path) if file.lower().endswith(".wav")]
 
-not_angry_folder_path = "./data/not-angry-test"
+not_angry_folder_path = "./data/not-angry"
 not_angry_files = [os.path.join(not_angry_folder_path, file) for file in os.listdir(
     not_angry_folder_path) if file.lower().endswith(".wav")]
 

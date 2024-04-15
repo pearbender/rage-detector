@@ -287,4 +287,4 @@ print('Done')
 # Run inference on trained model with the validation set
 inference(myModel, val_dl)
 
-torch.save(myModel.state_dict(), "model.pt")
+torch.save(myModel.state_dict(), "data/model.pt")

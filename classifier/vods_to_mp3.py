@@ -12,5 +12,6 @@ for vod in os.listdir(vods_dir):
     vod_path = os.path.join(vods_dir, vod)
     audio = os.path.join(audio_dir, f'{os.path.splitext(vod)[0]}.mp3')
 
-    subprocess.run(['ffmpeg', '-i', vod_path, '-q:a',
-                   '0', '-ac', '1', audio])
+    if not os.path.exists(audio):
+        subprocess.run(['ffmpeg', '-i', vod_path, '-q:a',
+                        '0', '-ac', '1', audio])
