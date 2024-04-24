@@ -240,8 +240,13 @@
 
         websocket.onmessage = function (event) {
             const data = JSON.parse(event.data);
-            console.log(data);
-            const fillPercentage = Math.round(Math.min(100, Number(data.p) * 100));
+            const isAngry = data.predicted_class === "0";
+            const confidence = Number(data.confidence);
+            const p1 = isAngry ? confidence : 1.0 - confidence;
+            const p2 = Number(data.p);
+            const p = (p1 + p2) / 2.0;
+            //console.log(p);
+            const fillPercentage = Math.round(Math.min(100, p * 100));
             target = fillPercentage;
         };
 
