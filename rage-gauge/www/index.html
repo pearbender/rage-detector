@@ -141,28 +141,34 @@
             energy = 0;
             loudness_cutoff = -20;
             loudness_coeff = 2;
-            energyInCoeff = 2;
-            heatingCoeff = 5;
-            coolingCoeff = 1;
-
+            energyInCoeff = 1;
+            heatingCoeff = 0.25;
+            coolingCoeff = 0.1;
+            
             simulate(dt, input, volume) {
                 let volumeEnergyIn = 0;
                 if (volume > this.loudness_cutoff) {
-                    volumeEnergyIn = (volume - this.loudness_cutoff) * (volume - this.loudness_cutoff) * dt * this.loudness_coeff;
+                    volumeEnergyIn = Math.pow(volume - this.loudness_cutoff, 2) * dt * this.loudness_coeff;
+                    console.log(volumeEnergyIn);
                 }
 
                 const energyIn = input * dt * this.energyInCoeff;
                 this.energy += energyIn + volumeEnergyIn;
 
                 //console.log(`${energyIn} volumein: ${volumeEnergyIn}, volume ${volume}`);
-                const energyTransferred = this.energy * dt * this.heatingCoeff;
-
-                if (this.current < 100) {
-                    this.current += energyTransferred;
-                    this.energy -= energyTransferred;
+                if (this.energy > this.current) {
+                    const energyTransferred = Math.pow(this.energy - this.current, 2) * dt * this.heatingCoeff;
+                    
+                    if (this.current < 100) {
+                        this.current += energyTransferred;
+                        this.energy -= energyTransferred;
+                        if (this.energy < 0) {
+                            this.energy = 0;
+                        }
+                    }
                 }
 
-                const energyOut = this.current * dt * this.coolingCoeff;
+                const energyOut = Math.pow(this.current, 1.4) * dt * this.coolingCoeff;
 
                 this.current -= energyOut;
                 if (this.current < 0) {
